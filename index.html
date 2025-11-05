@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elemental Synthesis Lab</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0; height: 100vh; overflow: hidden;
+        }
+        .container { display: flex; height: 100vh; }
+        .menu {
+            width: 25%; background: rgba(0, 0, 0, 0.5);
+            border-right: 2px solid #00d4ff; padding: 20px;
+            overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+        }
+        .menu-title {
+            font-size: 24px; font-weight: bold; color: #00d4ff;
+            text-align: center; margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        .menu-button {
+            padding: 12px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            border: none; color: #000; font-weight: bold; cursor: pointer;
+            border-radius: 5px; transition: all 0.3s;
+        }
+        .menu-button:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 212, 255, 0.8); }
+        .menu-button.active {
+            background: linear-gradient(135deg, #ff006e 0%, #cc0055 100%);
+            color: #fff;
+        }
+        .main-content { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 20px; }
+        .screen {
+            display: none; flex: 1; background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00d4ff; border-radius: 10px; padding: 20px; overflow-y: auto;
+        }
+        .screen.active { display: flex; flex-direction: column; }
+        .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+        .element-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 153, 204, 0.2) 100%);
+            border: 2px solid #00d4ff; border-radius: 8px; padding: 15px; text-align: center;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .element-card:hover {
+            transform: scale(1.1); box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+            border-color: #00ff00;
+        }
+        .element-symbol { font-size: 28px; font-weight: bold; color: #00ff00; }
+        .element-name { font-size: 12px; color: #00d4ff; margin-top: 5px; }
+        .element-price { font-size: 11px; color: #ffaa00; margin-top: 3px; }
+        .merge-machine {
+            display: flex; gap: 15px; align-items: center; padding: 20px;
+            background: rgba(0, 0, 0, 0.5); border: 2px solid #ff006e; border-radius: 10px;
+        }
+        .merge-slot {
+            flex: 1; background: rgba(255, 0, 110, 0.1); border: 2px dashed #ff006e;
+            border-radius: 8px; padding: 20px; text-align: center; min-height: 100px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .merge-slot.filled { border-style: solid; background: rgba(255, 0, 110, 0.2); }
+        .merge-button {
+            padding: 20px 40px; background: linear-gradient(135deg, #ff006e 0%, #cc0055 100%);
+            border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 8px;
+            font-size: 16px; transition: all 0.3s;
+        }
+        .merge-button:hover:not(:disabled) {
+            transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 0, 110, 0.6);
+        }
+        .merge-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .achievement {
+            background: linear-gradient(135deg, rgba(255, 170, 0, 0.2) 0%, rgba(255, 100, 0, 0.2) 100%);
+            border: 2px solid #ffaa00; border-radius: 8px; padding: 15px; margin: 10px 0;
+        }
+        .achievement-name { color: #ffaa00; font-weight: bold; font-size: 14px; }
+        .achievement-desc { font-size: 12px; color: #e0e0e0; margin-top: 5px; }
+        .inventory-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 212, 255, 0.1); padding: 10px; margin: 5px 0;
+            border-radius: 5px; border-left: 3px solid #00d4ff;
+        }
+        .status-item { display: flex; flex-direction: column; align-items: center; }
+        .status-label { color: #00d4ff; font-size: 12px; }
+        .status-value { color: #00ff00; font-size: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="menu">
+            <div class="menu-title">⚛️ Lab Menu</div>
+            <button class="menu-button active" onclick="switchScreen('store')">Element Store</button>
+            <button class="menu-button" onclick="switchScreen('merge')">Merge Machine</button>
+            <button class="menu-button" onclick="switchScreen('lab')">Lab Projects</button>
+            <button class="menu-button" onclick="switchScreen('achievements')">Achievements</button>
+            <button class="menu-button" onclick="switchScreen('inventory')">Inventory</button>
+            <hr style="margin: 10px 0; border-color: #00d4ff;">
+            <div style="margin-top: auto; padding-top: 20px; border-top: 2px solid #00d4ff;">
+                <div class="status-item" style="margin-bottom: 15px;">
+                    <div class="status-label">💰 Credits</div>
+                    <div class="status-value" id="credits">1000</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">🏆 Score</div>
+                    <div class="status-value" id="score">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div id="store" class="screen active">
+                <div style="font-size: 20px; color: #00d4ff; margin-bottom: 15px; font-weight: bold;">🛍️ Element Store</div>
+                <div class="store-grid" id="storeGrid"></div>
+            </div>
+            <div id="merge" class="screen">
+                <div style="font-size: 20px; color: #ff006e; margin-bottom: 15px; font-weight: bold;">🔄 Merge Machine</div>
+                <div class="merge-machine">
+                    <div class="merge-slot" id="slot1" onclick="selectSlot(1)">Select Element 1</div>
+                    <div style="font-size: 24px; color: #ff006e;">+</div>
+                    <div class="merge-slot" id="slot2" onclick="selectSlot(2)">Select Element 2</div>
+                    <button class="merge-button" onclick="performMerge()">⚛️ MERGE</button>
+                </div>
+                <div id="mergeResult" style="margin-top: 20px; padding: 15px; background: rgba(0, 0, 0, 0.5); border-radius: 8px; display: none;"></div>
+            </div>
+            <div id="lab" class="screen">
+                <div style="font-size: 20px; color: #00d4ff; margin-bottom: 15px; font-weight: bold;">🧪 Lab Projects</div>
+                <div id="labProjects"></div>
+            </div>
+            <div id="achievements" class="screen">
+                <div style="font-size: 20px; color: #ffaa00; margin-bottom: 15px; font-weight: bold;">🏆 Achievements</div>
+                <div id="achievementsList"></div>
+            </div>
+            <div id="inventory" class="screen">
+                <div style="font-size: 20px; color: #00d4ff; margin-bottom: 15px; font-weight: bold;">📦 Inventory</div>
+                <div id="inventoryList"></div>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
