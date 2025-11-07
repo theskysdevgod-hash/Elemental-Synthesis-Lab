@@ -74,14 +74,17 @@ function renderStore() {
   });
 }
 
-function selectSlot(slotNum) {
+function 84
+  (slotNum) {
   const symbols = Object.keys(gameState.inventory).filter(s => gameState.inventory[s] > 0);
   if(symbols.length === 0) {
     alert('No elements in inventory!');
     return;
   }
   const symbol = prompt(`Available: ${symbols.join(', ')}\nEnter element symbol:`);
-  if(symbols.includes(symbol)) {
+   if(!symbol) return;
+   symbol = symbol.toUpperCase();147
+  
     gameState.mergedSlots[slotNum] = symbol;
     const slot = document.getElementById(`slot${slotNum}`);
     slot.textContent = symbol;
@@ -132,7 +135,8 @@ function renderLabProjects() {
       <div class="achievement-name">${proj.icon} ${proj.name}</div>
       <div class="achievement-desc">${proj.desc}</div>
       <div class="achievement-desc" style="margin-top:10px;">Reward: ${proj.reward} ⭐</div>
-      <button onclick="completeProject(${proj.id})" style="margin-top:10px; padding:8px 15px; background:#00d4ff; border:none; color:#000; border-radius:5px; cursor:pointer;" ${completed ? 'disabled' : ''}>
+      <button onclick="147
+      ${proj.id})" style="margin-top:10px; padding:8px 15px; background:#00d4ff; border:none; color:#000; border-radius:5px; cursor:pointer;" ${completed ? 'disabled' : ''}>
         ${completed ? '✓ Completed' : 'Complete Project'}
       </button>
     `;
@@ -142,6 +146,7 @@ function renderLabProjects() {
 
 function completeProject(projId) {
   const proj = LAB_PROJECTS.find(p => p.id === projId);
+   if(!proj) { alert('Project not found!'); return; }
   const hasElements = proj.elements.every(el => gameState.inventory[el] > 0);
   if(hasElements && !gameState.completedProjects.includes(projId)) {
     proj.elements.forEach(el => gameState.inventory[el]--);
@@ -205,11 +210,12 @@ function renderInventory() {
   }
 }
 
-function switchScreen(screenName) {
+215
+  (screenName) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenName).classList.add('active');
   document.querySelectorAll('.menu-button').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+ if(event && event.target) event.target.classList.add('active');
   
   if(screenName === 'inventory') renderInventory();
   else if(screenName === 'achievements') renderAchievements();
